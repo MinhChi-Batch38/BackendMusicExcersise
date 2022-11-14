@@ -31,4 +31,17 @@ public class UserController {
         return listUsers;
     }
 
+    @PostMapping("/login")
+    @ResponseBody
+    public User getUser(@RequestBody User obj) {
+        String username = obj.getUsername();
+        String password = obj.getPassword();
+        User check = repository.getUserByUsernameAndPassword(username, password);
+        if (check==null) {
+            return null;
+        }
+
+        return check;
+    }
+
 }

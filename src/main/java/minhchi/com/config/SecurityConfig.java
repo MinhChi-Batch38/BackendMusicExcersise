@@ -1,4 +1,4 @@
-//package minhchi.com.security;
+//package minhchi.com.config;
 //
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;

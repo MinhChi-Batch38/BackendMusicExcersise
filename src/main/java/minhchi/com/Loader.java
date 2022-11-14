@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EnableJpaRepositories
@@ -29,9 +29,9 @@ public class Loader implements CommandLineRunner {
         for (User emp : repository.findAll()) {
             System.out. println(emp.toString());
         }
-
-//        String password = passwordEncoder.encode("admin");
-//        User user = new User(3, "admin", password);
-//        repository.save(user);
+//
+////        String password = passwordEncoder.encode("admin");
+////        User user = new User(3, "admin", password);
+////        repository.save(user);
     }
 }
