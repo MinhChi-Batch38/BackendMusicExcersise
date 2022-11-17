@@ -5,6 +5,7 @@ import minhchi.com.service.impl.FileServiceImpl;
 
 
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,10 +22,10 @@ public class FileController {
     private FileService fileService = new FileServiceImpl();
     //private Logger logger;
 
-    @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile multipartFile) {
+    @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String upload(@RequestParam("file") MultipartFile file) {
         //logger.info("HIT -/upload | File Name : {}", multipartFile.getOriginalFilename());
-        return fileService.upload(multipartFile);
+        return fileService.upload(file);
     }
 
 }

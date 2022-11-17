@@ -1,6 +1,9 @@
 package minhchi.com.models;
 
+import com.google.type.DateTime;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "songs")
@@ -21,6 +24,17 @@ public class Song {
 
     @Column(name="genre")
     private String genre;
+
+    @Column(name="last_update")
+    private LocalDateTime lastUpdate;
+
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 
     public Song() {
     }
