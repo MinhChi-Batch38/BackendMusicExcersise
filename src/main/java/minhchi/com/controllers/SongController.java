@@ -7,13 +7,15 @@ import minhchi.com.repository.SongRepository;
 //import minhchi.com.service.SongService;
 //import minhchi.com.service.impl.SongServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+import minhchi.com.service.FileService;
+import minhchi.com.service.impl.FileServiceImpl;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @EnableJpaRepositories
@@ -22,10 +24,11 @@ public class SongController {
 
     @Autowired
     private SongRepository songRepository;
+    private FileService fileService = new FileServiceImpl();
     //SongService songService = new SongServiceImpl(songRepository);
     @GetMapping("/get-all")
     public List<Song> listAll() {
-        List<Song> listSongs = songRepository.findAll();
+        List<Song> listSongs = songRepository.findAll(Sort.by("id").descending());
         //model.addAttribute("listUsers", listUsers);
         return listSongs;
     }
@@ -69,12 +72,31 @@ public class SongController {
 
     @DeleteMapping("/delete-song")
     public String deleteSong(@RequestBody Song song) {
+        String nameFile = song.getLink().replace("https://firebasestorage.googleapis.com/v0/b/music-d3f39.appspot.com/o/", "").replace("?alt=media", "");
         try {
-            songRepository.delete(song);
-            return "200";
+            if (fileService.delete(nameFile)) {
+                songRepository.delete(song);
+                return "200";
+            }
+            return "404";
         } catch (Exception err) {
             System.out.println(err);
             return "404";
         }
+    }
+    @DeleteMapping("/delete-all-song")
+    public String deleteAllSong(@RequestBody List<Song> songs) {
+        boolean successDelete = true;
+        String failedSongs = "";
+        for (Song song : songs) {
+            if (deleteSong(song) == "404") {
+                failedSongs += song.getName() + ".";
+                successDelete = false;
+            }
+        }
+        if (!successDelete) {
+            return failedSongs;
+        }
+        return "200";
     }
 }

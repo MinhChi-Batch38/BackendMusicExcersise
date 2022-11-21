@@ -2,10 +2,7 @@ package minhchi.com.service.impl;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 import minhchi.com.service.FileService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +21,7 @@ import static minhchi.com.utils.Constant.JSON_PATH;
 public class FileServiceImpl implements FileService {
     @Override
     public String UploadFile(File file, String fileName) throws IOException{
-        ClassPathResource serviceAccount = new ClassPathResource("path.json");
+        //ClassPathResource serviceAccount = new ClassPathResource("path.json");
         BlobId blobId = BlobId.of("music-d3f39.appspot.com", fileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
         Credentials credentials = GoogleCredentials.fromStream(new FileInputStream(JSON_PATH));
@@ -64,5 +61,29 @@ public class FileServiceImpl implements FileService {
             e.printStackTrace();
             return  "Unsuccessfully Uploaded!";
         }
+    }
+
+    @Override
+    public boolean delete(String url)  throws IOException{
+        //project-id = "music-d3f39"
+        //ClassPathResource serviceAccount = new ClassPathResource("path.json");
+        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream(JSON_PATH));
+        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        Blob blob = storage.get("music-d3f39.appspot.com", url);
+        if (blob == null) {
+            System.out.println("The object " + url + " wasn't found in music-d3f39.appspot.com");
+            return false;
+        }
+
+        // Optional: set a generation-match precondition to avoid potential race
+        // conditions and data corruptions. The request to upload returns a 412 error if
+        // the object's generation number does not match your precondition.
+        Storage.BlobSourceOption precondition =
+                Storage.BlobSourceOption.generationMatch(blob.getGeneration());
+
+        storage.delete("music-d3f39.appspot.com", url, precondition);
+
+        System.out.println("Object " + url + " was deleted from " + "music-d3f39.appspot.com");
+        return true;
     }
 }

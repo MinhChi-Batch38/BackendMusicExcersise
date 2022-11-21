@@ -11,4 +11,5 @@ public interface FileService {
        File ConvertToFile(MultipartFile multipartFile, String fileName);
        String GetExtendsion(String fileName);
        String upload(MultipartFile multipartFile);
+       boolean delete(String url) throws IOException;
 }
