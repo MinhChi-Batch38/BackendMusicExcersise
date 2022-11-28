@@ -7,6 +7,9 @@ import minhchi.com.repository.SongRepository;
 //import minhchi.com.service.SongService;
 //import minhchi.com.service.impl.SongServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +34,18 @@ public class SongController {
         List<Song> listSongs = songRepository.findAll(Sort.by("id").descending());
         //model.addAttribute("listUsers", listUsers);
         return listSongs;
+    }
+
+    @GetMapping("get-songs/{page}/{size}")
+    public List<Song> pagination(@PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Song> songs = songRepository.findAll(pageable);
+        return songs.getContent();
+    }
+
+    @GetMapping("/count-songs")
+    public long countSongs() {
+        return songRepository.count();
     }
 
     @PostMapping("/add-song")
