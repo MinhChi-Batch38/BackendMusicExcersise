@@ -29,9 +29,5 @@ public class Loader implements CommandLineRunner {
         for (User emp : repository.findAll()) {
             System.out. println(emp.toString());
         }
-//
-////        String password = passwordEncoder.encode("admin");
-////        User user = new User(3, "admin", password);
-////        repository.save(user);
     }
 }

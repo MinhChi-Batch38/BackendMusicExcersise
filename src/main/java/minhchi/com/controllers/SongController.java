@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+
 import minhchi.com.service.FileService;
 import minhchi.com.service.impl.FileServiceImpl;
 @CrossOrigin(origins = "http://localhost:3000")
@@ -99,11 +101,13 @@ public class SongController {
             return "404";
         }
     }
-    @DeleteMapping("/delete-all-song")
-    public String deleteAllSong(@RequestBody List<Song> songs) {
+    @DeleteMapping("/delete-songs/{ids}")
+    public String deleteAllSong(@PathVariable(value = "ids") List<String> ids) {
         boolean successDelete = true;
         String failedSongs = "";
-        for (Song song : songs) {
+        Song song = new Song();
+        for (String id : ids) {
+            song = songRepository.findSongById(Integer.parseInt(id));
             if (deleteSong(song) == "404") {
                 failedSongs += song.getName() + ".";
                 successDelete = false;

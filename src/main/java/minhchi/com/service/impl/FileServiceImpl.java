@@ -21,13 +21,18 @@ import static minhchi.com.utils.Constant.JSON_PATH;
 public class FileServiceImpl implements FileService {
     @Override
     public String UploadFile(File file, String fileName) throws IOException{
-        //ClassPathResource serviceAccount = new ClassPathResource("path.json");
-        BlobId blobId = BlobId.of("music-d3f39.appspot.com", fileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
-        Credentials credentials = GoogleCredentials.fromStream(new FileInputStream(JSON_PATH));
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
-        storage.create(blobInfo, Files.readAllBytes(file.toPath()));
-        return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        ClassPathResource serviceAccount = new ClassPathResource("path.json");
+        System.out.println(GetExtendsion((fileName)));
+        if (GetExtendsion(fileName).contains("mp3")) {
+            BlobId blobId = BlobId.of("music-d3f39.appspot.com", fileName);
+            System.out.println("OK");
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("media").build();
+            Credentials credentials = GoogleCredentials.fromStream(new FileInputStream(serviceAccount.getFile()));
+            Storage storage = StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+            storage.create(blobInfo, Files.readAllBytes(file.toPath()));
+            return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        }
+        return "404";
     }
 
     @Override
