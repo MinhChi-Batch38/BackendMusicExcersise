@@ -4,7 +4,7 @@ import minhchi.com.service.FileService;
 import minhchi.com.service.impl.FileServiceImpl;
 
 
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+//import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @CrossOrigin(origins = "http://localhost:3000")
-@EnableJpaRepositories
+//@EnableJpaRepositories
 @RestController
 public class FileController {
     private FileService fileService = new FileServiceImpl();

@@ -1,6 +1,7 @@
 package minhchi.com.controllers;
 
 
+
 //import com.google.api.client.util.DateTime;
 import minhchi.com.models.Song;
 import minhchi.com.repository.SongRepository;
@@ -23,7 +24,7 @@ import minhchi.com.service.FileService;
 import minhchi.com.service.impl.FileServiceImpl;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@EnableJpaRepositories
+//@EnableJpaRepositories
 @RequestMapping("/songs")
 public class SongController {
 
