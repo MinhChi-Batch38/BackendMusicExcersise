@@ -13,11 +13,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import minhchi.com.service.FileService;
@@ -40,10 +44,17 @@ public class SongController {
     }
 
     @GetMapping("get-songs/{page}/{size}")
-    public List<Song> pagination(@PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
+    public Page<Song> pagination(@PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Song> songs = songRepository.findAll(pageable);
-        return songs.getContent();
+        return songs;
+    }
+
+    @GetMapping("search/{keyword}/{page}/{size}")
+    public Page<Song> search(@PathVariable (value = "keyword") String kw, @PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Song> songs = songRepository.findAllByNameContaining(kw, pageable);
+        return songs;
     }
 
     @GetMapping("/count-songs")
@@ -52,7 +63,8 @@ public class SongController {
     }
 
     @PostMapping("/add-song")
-    public String addSong(@RequestBody Song song) {
+    public ResponseEntity addSong(@RequestBody Song song) {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         try {
             DateTimeFormatter formatter
                     = DateTimeFormatter.ofPattern(
@@ -62,11 +74,15 @@ public class SongController {
             Song newSong = new Song(song.getName(), song.getSinger(), song.getGenre(), song.getLink());
             newSong.setLastUpdate(time);
 
-            songRepository.save(newSong);
-            return "201";
+            Song addSong = songRepository.save(newSong);
+            map.put("song", addSong);
+            map.put("status", 201);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception err) {
             System.out.println(err);
-            return "404";
+            map.put("status", 404);
+            map.put("message", "Add failed!");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
     @PutMapping("/edit-song")
