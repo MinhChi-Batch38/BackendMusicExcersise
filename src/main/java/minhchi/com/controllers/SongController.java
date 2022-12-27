@@ -43,17 +43,28 @@ public class SongController {
         return listSongs;
     }
 
-    @GetMapping("get-songs/{page}/{size}")
-    public Page<Song> pagination(@PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Song> songs = songRepository.findAll(pageable);
-        return songs;
+    @GetMapping("/get-songs")
+    public Page<Song> pagination(@RequestParam(value = "keywords") String kw,@RequestParam (value = "page") int page, @RequestParam (value = "size") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+            Page<Song> songs;
+            if (kw.isEmpty()) {
+                songs = songRepository.findAll(pageable);
+            } else {
+                songs = songRepository.findAllByNameContaining(kw, pageable);
+            }
+            return songs;
+        } catch (Exception err) {
+            return null;
+        }
     }
 
-    @GetMapping("search/{keyword}/{page}/{size}")
+    @GetMapping("/search/{keyword}/{page}/{size}")
     public Page<Song> search(@PathVariable (value = "keyword") String kw, @PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Song> songs = songRepository.findAllByNameContaining(kw, pageable);
+//        Page<Song> songs = songRepository.findAllByNameContainingOrSingerContaining(kw, pageable);
+
         return songs;
     }
 

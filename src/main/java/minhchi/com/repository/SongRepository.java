@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Integer> {
@@ -17,6 +16,8 @@ public interface SongRepository extends JpaRepository<Song, Integer> {
     Song findSongById(int id);
 
     Page<Song> findAllByNameContaining(String kw, Pageable pageable);
+
+//    Page<Song> findAllByNameContainingOrSingerContaining(String kw, Pageable pageable);
     @Query(value = "Select * from songs where name like %?1% or singer like %?1%", nativeQuery = true)
     List<Song> findAllByNameContainingOrSingerContaining(String kw);
     //List<Song> findAllByGenre(String genre);
