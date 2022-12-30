@@ -15,10 +15,13 @@ public interface SongRepository extends JpaRepository<Song, Integer> {
 
     Song findSongById(int id);
 
+    Song findSongByNameAndSinger(String name, String singer);
+
     Page<Song> findAllByNameContaining(String kw, Pageable pageable);
 
 //    Page<Song> findAllByNameContainingOrSingerContaining(String kw, Pageable pageable);
     @Query(value = "Select * from songs where name like %?1% or singer like %?1%", nativeQuery = true)
-    List<Song> findAllByNameContainingOrSingerContaining(String kw);
+    Page<Song> findAllByNameContainingOrSingerContaining(String kw, Pageable pageable);
+    Page<Song> findAllByNameContainingOrSingerContaining(String kw, String kw2,  Pageable pageable);
     //List<Song> findAllByGenre(String genre);
 }

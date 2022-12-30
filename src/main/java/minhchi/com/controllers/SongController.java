@@ -51,7 +51,8 @@ public class SongController {
             if (kw.isEmpty()) {
                 songs = songRepository.findAll(pageable);
             } else {
-                songs = songRepository.findAllByNameContaining(kw, pageable);
+//                songs = songRepository.findAllByNameContaining(kw, pageable);
+                  songs = songRepository.findAllByNameContainingOrSingerContaining(kw, pageable);
             }
             return songs;
         } catch (Exception err) {
@@ -59,35 +60,44 @@ public class SongController {
         }
     }
 
-    @GetMapping("/search/{keyword}/{page}/{size}")
-    public Page<Song> search(@PathVariable (value = "keyword") String kw, @PathVariable (value = "page") int page, @PathVariable (value = "size") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Song> songs = songRepository.findAllByNameContaining(kw, pageable);
-//        Page<Song> songs = songRepository.findAllByNameContainingOrSingerContaining(kw, pageable);
+    @GetMapping("/check-song")
+    public ResponseEntity checkSongs(@RequestParam (value = "name") String name, @RequestParam (value = "singer") String singer) {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        try {
+            Song check = songRepository.findSongByNameAndSinger(name, singer);
+            if (check != null) {
+                map.put("status", 404);
+                map.put("message", "The song has already been existed!");
+            } else {
 
-        return songs;
-    }
-
-    @GetMapping("/count-songs")
-    public long countSongs() {
-        return songRepository.count();
+                map.put("message", "OK");
+                map.put("status", 200);
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception ex) {
+            System.out.println(ex);
+            map.put("status", 404);
+            map.put("message", "Can't check song! Please try again!");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/add-song")
     public ResponseEntity addSong(@RequestBody Song song) {
         Map<String, Object> map = new LinkedHashMap<String, Object>();
         try {
-            DateTimeFormatter formatter
-                    = DateTimeFormatter.ofPattern(
-                    "yyyy-MM-dd HH:mm:ss a");
+                DateTimeFormatter formatter
+                        = DateTimeFormatter.ofPattern(
+                        "yyyy-MM-dd HH:mm:ss a");
 
-            LocalDateTime time = LocalDateTime.now();
-            Song newSong = new Song(song.getName(), song.getSinger(), song.getGenre(), song.getLink());
-            newSong.setLastUpdate(time);
+                LocalDateTime time = LocalDateTime.now();
+                Song newSong = new Song(song.getName(), song.getSinger(), song.getGenre(), song.getLink());
+                newSong.setLastUpdate(time);
 
-            Song addSong = songRepository.save(newSong);
-            map.put("song", addSong);
-            map.put("status", 201);
+                Song addSong = songRepository.save(newSong);
+                map.put("song", addSong);
+                map.put("status", 201);
+                map.put("message", "The song has been added!");
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception err) {
             System.out.println(err);
@@ -97,21 +107,27 @@ public class SongController {
         }
     }
     @PutMapping("/edit-song")
-    public String editSong(@RequestBody Song song) {
+    public ResponseEntity editSong(@RequestBody Song song) {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         try {
-            DateTimeFormatter formatter
-                    = DateTimeFormatter.ofPattern(
-                    "yyyy-MM-dd HH:mm:ss a");
+                DateTimeFormatter formatter
+                        = DateTimeFormatter.ofPattern(
+                        "yyyy-MM-dd HH:mm:ss a");
 
-            LocalDateTime time = LocalDateTime.now();
-            //Song newSong = new Song(song.getName(), song.getSinger(), song.getGenre(), song.getLink());
-            song.setLastUpdate(time);
+                LocalDateTime time = LocalDateTime.now();
+                //Song newSong = new Song(song.getName(), song.getSinger(), song.getGenre(), song.getLink());
+                song.setLastUpdate(time);
 
-            songRepository.save(song);
-            return "200";
+                Song editSong = songRepository.save(song);
+                map.put("song", editSong);
+                map.put("status", 200);
+                map.put("message", "The song has been updated!");
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception err) {
             System.out.println(err);
-            return "404";
+            map.put("status", 404);
+            map.put("message", "Edit failed!");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -130,20 +146,32 @@ public class SongController {
         }
     }
     @DeleteMapping("/delete-songs/{ids}")
-    public String deleteAllSong(@PathVariable(value = "ids") List<String> ids) {
+    public ResponseEntity deleteAllSong(@PathVariable(value = "ids") List<String> ids) {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         boolean successDelete = true;
         String failedSongs = "";
         Song song = new Song();
-        for (String id : ids) {
-            song = songRepository.findSongById(Integer.parseInt(id));
-            if (deleteSong(song) == "404") {
-                failedSongs += song.getName() + ".";
-                successDelete = false;
+        try {
+            for (String id : ids) {
+                song = songRepository.findSongById(Integer.parseInt(id));
+                if (deleteSong(song) == "404") {
+                    failedSongs += song.getName() + ".";
+                    successDelete = false;
+                }
             }
+            if (!successDelete) {
+                map.put("status", 404);
+                map.put("message", "Can't delete songs: " + failedSongs);
+            } else {
+                map.put("status", 200);
+                map.put("message", "The songs have been deleted!");
+            }
+            return new ResponseEntity<>(map, HttpStatus.OK);
+        } catch (Exception err) {
+            map.put("status", 404);
+            map.put("message", "Delete failed!");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
-        if (!successDelete) {
-            return failedSongs;
-        }
-        return "200";
+
     }
 }
