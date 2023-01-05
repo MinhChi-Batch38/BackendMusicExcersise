@@ -76,7 +76,7 @@ public class SongController {
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception ex) {
             System.out.println(ex);
-            map.put("status", 404);
+            map.put("status", 500);
             map.put("message", "Can't check song! Please try again!");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
@@ -168,7 +168,7 @@ public class SongController {
             }
             return new ResponseEntity<>(map, HttpStatus.OK);
         } catch (Exception err) {
-            map.put("status", 404);
+            map.put("status", 500);
             map.put("message", "Delete failed!");
             return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
